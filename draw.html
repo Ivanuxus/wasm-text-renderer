@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WASM Text Renderer</title>
+    <script src="draw.js"></script>
+  </head>
+  <body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+      console.log("Script loaded");
+
+      function getQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        console.log("Query params:", params.toString());
+        return {
+          text: params.get("t") || "Hello",
+          orientation: params.get("o") === "v",
+        };
+      }
+
+      Module.onRuntimeInitialized = () => {
+        console.log("WASM Loaded");
+
+        const canvas = document.getElementById("canvas");
+        if (!canvas) {
+          console.error("Canvas element not found!");
+          return;
+        }
+
+        Module.canvas = canvas; // Устанавливаем canvas для WebAssembly
+        const { text, orientation } = getQueryParams();
+        Module.ccall(
+          "setTextAndOrientation",
+          null,
+          ["string", "boolean"],
+          [text, orientation]
+        );
+      };
+    </script>
+  </body>
+</html>
